@@ -1,5 +1,4 @@
-import { defineStore } from 'pinia'
-import { fetchTopHeadlines } from '../services/newsService'
+import { fetchTopHeadlines, searchNews } from '../services/newsService'
 
 export const useNewsStore = defineStore('news', {
   state: () => ({
@@ -14,8 +13,22 @@ export const useNewsStore = defineStore('news', {
       this.error = null
 
       try {
-        const articles = await fetchTopHeadlines()
-        this.articles = articles
+        this.articles = await fetchTopHeadlines()
+      } catch (err) {
+        this.error = err.message
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async search(query) {
+      if (!query) return this.loadNews()
+
+      this.loading = true
+      this.error = null
+
+      try {
+        this.articles = await searchNews(query)
       } catch (err) {
         this.error = err.message
       } finally {
@@ -24,3 +37,5 @@ export const useNewsStore = defineStore('news', {
     },
   },
 })
+
+import { defineStore } from 'pinia'
